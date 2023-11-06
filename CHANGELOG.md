@@ -8,6 +8,7 @@ Using VS code as editor and default format is markdown language.
 - add make
 - auto push to git
 - able to search more than 1 tag
+- auto create title
 ### Changed
 ### Removed
 ### Deprecated

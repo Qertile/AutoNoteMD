@@ -1,18 +1,28 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 #include <stdlib.h>
 #include <dirent.h>
 #include <time.h>
 
+#define TITLE   "# "
+#define TAG     "###### "
+#define DASH    "-"
+#define FILE_NAME_LENGTH 13
+#define TITLE_NAME_LENGTH 10
+#define COMMAND "code ./"
+
 
 int main(void) {
     char *dir_name = ".";
-    char _file_name[10];
-    char _buffer[5];
-    char _command[128] = "code ";
+    char _title_name[TITLE_NAME_LENGTH+1];
+    char _buffer[FILE_NAME_LENGTH];
+    char _command[20];
     
-    char _1st_line[16] = "# ";
-    char _2nd_line[16] = "###### ";
+    int  year = 0;
+    int  month = 0;
+    int  date = 0;
+    int  buffer_count = 0;
 
     FILE *fp;
 
@@ -28,40 +38,65 @@ int main(void) {
 
     // Convert the current time to a struct tm.
     struct tm *local_time = localtime(&now);
+
+    year = local_time->tm_year+1900;
+    month = local_time->tm_mon+1;
+    date = local_time->tm_mday;
     
-    itoa(local_time->tm_year+1900, _buffer, 10);
-    strcat(_file_name, _buffer);
-    strcat(_file_name, "-");
+    // ----- print date into buffer -----
+    buffer_count = snprintf(_buffer, FILE_NAME_LENGTH,"%d", year);
+    buffer_count += snprintf(_buffer+buffer_count, FILE_NAME_LENGTH, DASH);
 
-    if(local_time->tm_mon+1 < 10)
-        strcat(_file_name, "0");
-    itoa(local_time->tm_mon+1, _buffer, 10);
-    strcat(_file_name, _buffer);
-    strcat(_file_name, "-");
+    if(month < 10)
+        buffer_count += snprintf(_buffer+buffer_count, FILE_NAME_LENGTH, "0");
+    buffer_count += snprintf(_buffer+buffer_count, FILE_NAME_LENGTH, "%d", month);
+    buffer_count += snprintf(_buffer+buffer_count, FILE_NAME_LENGTH, DASH);
 
-    if(local_time->tm_mday+1 < 10)
-        strcat(_file_name, "0");
-    itoa(local_time->tm_mday, _buffer, 10);
-    strcat(_file_name, _buffer);
 
-    strcat(_1st_line, _file_name);
-    strcat(_1st_line, "\n");
+    if(date < 10)
+        buffer_count += snprintf(_buffer+buffer_count, FILE_NAME_LENGTH, "0");
+    buffer_count += snprintf(_buffer+buffer_count, FILE_NAME_LENGTH, "%d", date);
 
-    strcat(_file_name, ".md");
+    printf("\n");
 
-    strcat(_command, _file_name);
+
+    // ----- copy file name to title -----
+    memcpy(_title_name, _buffer, TITLE_NAME_LENGTH);
+    strcat(_title_name, "\0"); // add \0 into tutle buffer
     
-    
-    fp = fopen(_file_name, "a+");
 
-    if (fp == NULL) printf("Error opening file %s.\n", _file_name);
+    buffer_count += snprintf(_buffer+buffer_count, FILE_NAME_LENGTH, "%s", ".md");
+
+    
+    // ----- create file -----
+    fp = fopen(_buffer, "a+");
+    if (fp == NULL) printf("Error opening file %s.\n", _buffer);
 
 
     // Write text to the file
-    fprintf(fp, _1st_line);
-    fprintf(fp, _2nd_line);
+    // ----- create title -----
+    fprintf(fp, "%s", TITLE);
+    fprintf(fp, "%s\n", _title_name);
 
-    system("code .");
+
+    // ----- create date tag mm/dd -----
+    fprintf(fp, "%s", TAG);
+    if(month<10)
+        fprintf(fp, "0");
+    fprintf(fp, "%d", month);
+    if(date<10)
+        fprintf(fp, "0");
+    fprintf(fp, "%d\n", date);
+    
+    // ----- create empty tag -----
+    fprintf(fp, "%s\n", TAG);
+    fprintf(fp, "%s\n", TAG);
+    fprintf(fp, "%s\n", TAG);
+
+
+    // ----- create terminal command -----
+    strncat(_command, COMMAND, 8);
+    strncat(_command, _buffer,13);
     system(_command);
 
     closedir(dp);

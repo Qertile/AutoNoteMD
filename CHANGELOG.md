@@ -8,7 +8,6 @@ Using VS code as editor and default format is markdown language.
 - add make
 - auto push to git
 - able to search more than 1 tag
-- auto create title
 ### Changed
 ### Removed
 ### Deprecated
@@ -16,6 +15,11 @@ Using VS code as editor and default format is markdown language.
 ### Known Issues
 ### Notes
 ### Reference
+
+-----------------------------------
+## AutoNoteMD v1.1.0(2024.07.02) @master
+### New
+1. **note**: create a new version for linux
 
 -----------------------------------
 ## AutoNoteMD v1.0.0(2023.06.28) @master

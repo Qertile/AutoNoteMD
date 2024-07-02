@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 #include <stdlib.h>
 #include <dirent.h>
 #define INIT_COMMAND char##var
@@ -13,7 +14,7 @@ int main(int argc, char** argv) {
     char *file_name;
     char search_string[64];
     char search_target[64];
-    char command[128] = "code ";
+    char command[128] = "code ./";
 
     FILE *fp;
     file_name = calloc(0, 13);
@@ -37,7 +38,7 @@ int main(int argc, char** argv) {
         
         fp = fopen(file_name, "r");
         if (fp == NULL) {
-        printf("Error opening file %s.\n", file_name);
+            printf("Error opening file %s.\n", file_name);
         } 
         else {
             // Iterate over the file, looking for the search string.
@@ -45,6 +46,7 @@ int main(int argc, char** argv) {
             char ch;
             ch = fgetc(fp);
                 if (ch == search_string[0]) {
+                        printf("%s\n", file_name);
                     // Check if the next few characters match the search string.
                     size_t i;
                     for (i = 1; i < strlen(search_string); i++) {
@@ -66,7 +68,9 @@ int main(int argc, char** argv) {
                         command[4] = ' ';
                         break;
                     }
-                    else printf("Nothing found.\n");
+                    else {
+                        printf("Nothing found.\n");
+                    }
                 }
             }
             fclose(fp);
@@ -75,6 +79,7 @@ int main(int argc, char** argv) {
     }
 
     closedir(dp);
+    // system("pause");
     return 0;
 }
 

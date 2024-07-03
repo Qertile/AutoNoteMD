@@ -17,6 +17,11 @@ Using VS code as editor and default format is markdown language.
 ### Reference
 
 -----------------------------------
+## AutoNoteMD v1.2.0(2024.07.03) @master
+### Fixed
+1. **note**: able to create files in the designated directory
+
+-----------------------------------
 ## AutoNoteMD v1.1.0(2024.07.02) @master
 ### New
 1. **note**: create a new version for linux

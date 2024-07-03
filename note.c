@@ -4,32 +4,40 @@
 #include <stdlib.h>
 #include <dirent.h>
 #include <time.h>
+#include <errno.h>
 
 #define TITLE   "# "
 #define TAG     "###### "
 #define DASH    "-"
-#define FILE_NAME_LENGTH 13
-#define TITLE_NAME_LENGTH 10
+#define FILE_NAME_LENGTH    13
+#define DIR_NAME_LENGTH     128
+#define TITLE_NAME_LENGTH   10
 #define COMMAND "code ./"
 
+#define DIRNAME "home/yushun.wang/Desktop/Notes/MyNotes/"
 
 int main(void) {
-    char *dir_name = ".";
-    char _title_name[TITLE_NAME_LENGTH+1];
-    char _buffer[FILE_NAME_LENGTH];
-    char _command[20];
+    char _title_name[TITLE_NAME_LENGTH+1] = {0};
+    char _filename[FILE_NAME_LENGTH] = {0};
+    char _dirname[DIR_NAME_LENGTH] = {0};
+    char _command[DIR_NAME_LENGTH] = {0};
     
-    int  year = 0;
-    int  month = 0;
-    int  date = 0;
-    int  buffer_count = 0;
+    int year = 0;
+    int month = 0;
+    int date = 0;
+    int buffer_count = 0;
+
+    int error = 0;
 
     FILE *fp;
+    DIR *dp;
 
     // Get a list of all files in the directory.
-    DIR *dp = opendir(dir_name);
+    dp = opendir(DIRNAME);
     if (dp == NULL) {
-        printf("Error opening directory.\n");
+        error= errno;
+        printf("Error in opening \"%s\"\n", DIRNAME);
+        printf("Error: %s\n", strerror( error ) );
         return 1;
     }
     
@@ -44,33 +52,40 @@ int main(void) {
     date = local_time->tm_mday;
     
     // ----- print date into buffer -----
-    buffer_count = snprintf(_buffer, FILE_NAME_LENGTH,"%d", year);
-    buffer_count += snprintf(_buffer+buffer_count, FILE_NAME_LENGTH, DASH);
+    buffer_count = snprintf(_filename, FILE_NAME_LENGTH,"%d", year);
+    buffer_count += snprintf(_filename+buffer_count, FILE_NAME_LENGTH, DASH);
 
     if(month < 10)
-        buffer_count += snprintf(_buffer+buffer_count, FILE_NAME_LENGTH, "0");
-    buffer_count += snprintf(_buffer+buffer_count, FILE_NAME_LENGTH, "%d", month);
-    buffer_count += snprintf(_buffer+buffer_count, FILE_NAME_LENGTH, DASH);
+        buffer_count += snprintf(_filename+buffer_count, FILE_NAME_LENGTH, "0");
+    buffer_count += snprintf(_filename+buffer_count, FILE_NAME_LENGTH, "%d", month);
+    buffer_count += snprintf(_filename+buffer_count, FILE_NAME_LENGTH, DASH);
 
 
     if(date < 10)
-        buffer_count += snprintf(_buffer+buffer_count, FILE_NAME_LENGTH, "0");
-    buffer_count += snprintf(_buffer+buffer_count, FILE_NAME_LENGTH, "%d", date);
+        buffer_count += snprintf(_filename+buffer_count, FILE_NAME_LENGTH, "0");
+    buffer_count += snprintf(_filename+buffer_count, FILE_NAME_LENGTH, "%d", date);
 
     printf("\n");
 
 
     // ----- copy file name to title -----
-    memcpy(_title_name, _buffer, TITLE_NAME_LENGTH);
-    strcat(_title_name, "\0"); // add \0 into tutle buffer
+    memcpy(_title_name, _filename, TITLE_NAME_LENGTH);
+    strcat(_title_name, "\0"); // add \0 into title buffer
     
 
-    buffer_count += snprintf(_buffer+buffer_count, FILE_NAME_LENGTH, "%s", ".md");
+    buffer_count += snprintf(_filename+buffer_count, FILE_NAME_LENGTH, "%s", ".md");
 
-    
+    strncat(_dirname, DIRNAME, sizeof(DIRNAME));
+    strncat(_dirname, _filename, FILE_NAME_LENGTH);
     // ----- create file -----
-    fp = fopen(_buffer, "a+");
-    if (fp == NULL) printf("Error opening file %s.\n", _buffer);
+    fp = fopen(_dirname, "a+");
+    if (fp == NULL) {
+        error= errno;
+        printf("Error opening file \"%s\"\n", _dirname);
+        printf("Error: %s\n", strerror( error ) );
+        closedir(dp);
+        return 1;
+    }
 
 
     // Write text to the file
@@ -78,6 +93,9 @@ int main(void) {
     fprintf(fp, "%s", TITLE);
     fprintf(fp, "%s\n", _title_name);
 
+    printf("dir:%s\n", _dirname);
+    printf("file:%s\n", _filename);
+    printf("title:%s\n", _title_name);
 
     // ----- create date tag mm/dd -----
     fprintf(fp, "%s", TAG);
@@ -96,10 +114,13 @@ int main(void) {
 
     // ----- create terminal command -----
     strncat(_command, COMMAND, 8);
-    strncat(_command, _buffer,13);
+    strncat(_command, _dirname,128);
     system(_command);
 
+    printf("Executing... \"%s\"\n", _command);
+    system("exit");
+
+    fclose(fp);
     closedir(dp);
     return 0;
 }
-

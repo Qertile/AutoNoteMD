@@ -12,9 +12,9 @@
 #define FILE_NAME_LENGTH    13
 #define DIR_NAME_LENGTH     128
 #define TITLE_NAME_LENGTH   10
-#define COMMAND "code ./"
+#define COMMAND "code "
 
-#define DIRNAME "home/yushun.wang/Desktop/Notes/MyNotes/"
+#define DIRNAME "/home/yushun.wang/Desktop/Notes/MyNotes/"
 
 int main(void) {
     char _title_name[TITLE_NAME_LENGTH+1] = {0};
